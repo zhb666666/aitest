@@ -27,6 +27,9 @@ spring:
     port: 5672
     username: guest
     password: guest
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
 server:
   port: 8080
