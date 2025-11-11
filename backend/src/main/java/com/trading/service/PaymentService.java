@@ -95,7 +95,12 @@ public class PaymentService {
         }
 
         // 发送支付成功消息到RabbitMQ
-        rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, PAYMENT_ROUTING_KEY, savedPayment.getId());
+        try {
+            rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, PAYMENT_ROUTING_KEY, savedPayment.getId());
+        } catch (Exception e) {
+            // 如果RabbitMQ不可用，记录日志但不影响支付处理
+            System.err.println("RabbitMQ消息发送失败: " + e.getMessage());
+        }
 
         return savedPayment;
     }

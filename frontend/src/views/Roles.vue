@@ -195,4 +195,3 @@ export default {
   margin-bottom: 20px;
 }
 </style>
-

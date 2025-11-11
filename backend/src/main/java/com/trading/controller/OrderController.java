@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/orders")
@@ -28,10 +29,17 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public Result<Order> getOrderById(@PathVariable Long id) {
-        return orderService.getOrderById(id)
-                .map(Result::success)
-                .orElse(Result.error("订单不存在"));
+    public Result<Order> getOrderById(@PathVariable Long id, Authentication authentication) {
+        Long userId = getCurrentUserId(authentication);
+        Optional<Order> orderOpt = orderService.getOrderById(id);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            if (!order.getUserId().equals(userId)) {
+                return Result.error("无权访问该订单");
+            }
+            return Result.success(order);
+        }
+        return Result.error("订单不存在");
     }
 
     @PostMapping

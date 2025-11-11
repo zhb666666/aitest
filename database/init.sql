@@ -198,6 +198,9 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT 1, id FROM permissions;
 
 -- 插入默认管理员用户 (密码: admin123)
+-- BCrypt哈希值: $2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iwy8pQ5O
+-- 如果登录失败，请运行以下SQL更新密码:
+-- UPDATE users SET password = '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iwy8pQ5O' WHERE username = 'admin';
 INSERT INTO users (username, password, email, status) VALUES
 ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iwy8pQ5O', 'admin@example.com', 1);
 

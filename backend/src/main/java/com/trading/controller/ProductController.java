@@ -3,8 +3,11 @@ package com.trading.controller;
 import com.trading.common.Result;
 import com.trading.entity.Product;
 import com.trading.service.ProductService;
+import com.trading.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +18,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public Result<List<Product>> getProducts(@RequestParam(required = false) Integer status) {
@@ -48,9 +54,14 @@ public class ProductController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('product:add')")
-    public Result<Product> createProduct(@RequestBody Product product) {
+    public Result<Product> createProduct(@RequestBody Product product, Authentication authentication) {
         try {
+            // 获取当前登录用户ID作为卖家ID
+            if (authentication != null && authentication.isAuthenticated()) {
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                userService.getUserByUsername(userDetails.getUsername())
+                    .ifPresent(user -> product.setSellerId(user.getId()));
+            }
             return Result.success(productService.createProduct(product));
         } catch (Exception e) {
             return Result.error(e.getMessage());

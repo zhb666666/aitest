@@ -30,3 +30,7 @@ Thumbs.db
 .env
 .env.local
 
+# Upload files
+uploads/
+backend/uploads/
+

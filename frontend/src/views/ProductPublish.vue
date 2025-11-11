@@ -15,7 +15,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="商品图片" prop="image">
-          <el-input v-model="productForm.image" placeholder="请输入图片URL"></el-input>
+          <ImageUpload v-model="productForm.image" :limit="1" />
         </el-form-item>
         <el-form-item label="价格" prop="price">
           <el-input-number v-model="productForm.price" :min="0" :precision="2"></el-input-number>
@@ -42,13 +42,16 @@
 
 <script>
 import { ref, reactive } from 'vue'
-import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
+import api from '@/api'
+import ImageUpload from '@/components/ImageUpload.vue'
 
 export default {
   name: 'ProductPublish',
+  components: {
+    ImageUpload
+  },
   setup() {
-    const store = useStore()
     const productFormRef = ref(null)
     const loading = ref(false)
 
@@ -74,11 +77,15 @@ export default {
         if (valid) {
           loading.value = true
           try {
-            await store.dispatch('product/createProduct', productForm)
-            ElMessage.success('发布成功')
-            resetForm()
+            const response = await api.post('/products', productForm)
+            if (response.data.code === 200) {
+              ElMessage.success('发布成功')
+              resetForm()
+            } else {
+              ElMessage.error(response.data.message || '发布失败')
+            }
           } catch (error) {
-            ElMessage.error(error.message || '发布失败')
+            ElMessage.error(error.response?.data?.message || error.message || '发布失败')
           } finally {
             loading.value = false
           }
@@ -111,4 +118,3 @@ export default {
   margin-bottom: 20px;
 }
 </style>
-

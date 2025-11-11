@@ -45,7 +45,7 @@
             <span>权限管理</span>
           </el-menu-item>
           <el-menu-item index="/menus">
-            <el-icon><Menu /></el-icon>
+            <el-icon><MenuIcon /></el-icon>
             <span>菜单管理</span>
           </el-menu-item>
         </el-menu>
@@ -61,7 +61,7 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
-import { Shop, Plus, ShoppingCart, Document, User, UserFilled, Lock, Menu } from '@element-plus/icons-vue'
+import { Shop, Plus, ShoppingCart, Document, User, UserFilled, Lock, Menu as MenuIcon } from '@element-plus/icons-vue'
 
 export default {
   name: 'MainLayout',
@@ -73,7 +73,7 @@ export default {
     User,
     UserFilled,
     Lock,
-    Menu
+    MenuIcon
   },
   setup() {
     const router = useRouter()
@@ -125,4 +125,3 @@ export default {
   height: 100%;
 }
 </style>
-

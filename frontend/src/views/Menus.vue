@@ -10,7 +10,7 @@
         :props="{ children: 'children', label: 'menuName' }"
         default-expand-all
       >
-        <template #default="{ node, data }">
+        <template #default="{ data }">
           <span class="tree-node">
             <span>{{ data.menuName }}</span>
             <span class="tree-node-actions">
@@ -231,4 +231,3 @@ export default {
   margin-left: 20px;
 }
 </style>
-

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,6 +46,10 @@ public class OrderService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<CartItem> cartItems = cartItemRepository.findAllById(cartItemIds);
 
+        if (cartItems.isEmpty()) {
+            throw new RuntimeException("购物车为空");
+        }
+
         // 验证购物车项并计算总金额
         for (CartItem cartItem : cartItems) {
             if (!cartItem.getUserId().equals(userId)) {
@@ -72,7 +75,8 @@ public class OrderService {
 
         // 保存订单项
         for (CartItem cartItem : cartItems) {
-            Product product = productRepository.findById(cartItem.getProductId()).get();
+            Product product = productRepository.findById(cartItem.getProductId())
+                .orElseThrow(() -> new RuntimeException("商品不存在"));
             OrderItem orderItem = new OrderItem();
             orderItem.setOrderId(savedOrder.getId());
             orderItem.setProductId(product.getId());
@@ -84,7 +88,12 @@ public class OrderService {
         }
 
         // 发送订单创建消息到RabbitMQ
-        rabbitTemplate.convertAndSend(ORDER_EXCHANGE, ORDER_ROUTING_KEY, savedOrder.getId());
+        try {
+            rabbitTemplate.convertAndSend(ORDER_EXCHANGE, ORDER_ROUTING_KEY, savedOrder.getId());
+        } catch (Exception e) {
+            // 如果RabbitMQ不可用，记录日志但不影响订单创建
+            System.err.println("RabbitMQ消息发送失败: " + e.getMessage());
+        }
 
         return savedOrder;
     }
@@ -101,6 +110,10 @@ public class OrderService {
         return orderRepository.findByOrderNo(orderNo);
     }
 
+    public List<OrderItem> getOrderItems(Long orderId) {
+        return orderItemRepository.findByOrderId(orderId);
+    }
+
     public void cancelOrder(Long orderId) {
         Optional<Order> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isPresent()) {
@@ -108,7 +121,11 @@ public class OrderService {
             if (order.getStatus() == 0) {
                 order.setStatus(4); // 已取消
                 orderRepository.save(order);
+            } else {
+                throw new RuntimeException("只能取消待支付状态的订单");
             }
+        } else {
+            throw new RuntimeException("订单不存在");
         }
     }
 
@@ -116,4 +133,3 @@ public class OrderService {
         return "ORD" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }
-
