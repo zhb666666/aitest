@@ -33,6 +33,10 @@ server:
   servlet:
     context-path: /api
 
+jwt:
+  secret: your-secret-key-change-this-in-production-at-least-256-bits-long-for-hs512
+  expiration: 86400000
+
 logging:
   level:
     root: INFO
