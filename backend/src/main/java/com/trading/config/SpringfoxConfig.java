@@ -28,7 +28,7 @@ public class SpringfoxConfig implements WebMvcConfigurer {
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.trading.controller"))
-                .paths(PathSelectors.any())
+                .paths(PathSelectors.regex(".*"))
                 .build()
                 .securitySchemes(securitySchemes())
                 .securityContexts(securityContexts());
